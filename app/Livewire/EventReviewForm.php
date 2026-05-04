@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\EventReview;
+use App\Support\WebpUploader;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -46,7 +47,11 @@ class EventReviewForm extends Component
 
         $photoPath = null;
         if ($this->photo) {
-            $photoPath = $this->photo->store('event-reviews', 'public');
+            $photoPath = WebpUploader::storeUploadedFileAsWebp(
+                file: $this->photo,
+                disk: 'public',
+                directory: 'event-reviews',
+            );
         }
 
         EventReview::create([

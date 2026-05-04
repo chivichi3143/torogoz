@@ -9,8 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@if($title){{ $title }} | @endif Cerveza El Torogoz — Chalchuapa, El Salvador</title>
     <meta name="description" content="{{ $metaDescription ?? 'Descubre Cerveza El Torogoz, la cerveza artesanal originaria de Chalchuapa, El Salvador. Sabores únicos: Porter, Ginger, APA, Honey y Weissbier.' }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
 
     @stack('head')

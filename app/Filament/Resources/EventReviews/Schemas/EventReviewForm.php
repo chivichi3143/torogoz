@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\EventReviews\Schemas;
 
+use App\Support\WebpUploader;
+use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class EventReviewForm
 {
@@ -36,6 +39,13 @@ class EventReviewForm
                     ->image()
                     ->disk('public')
                     ->directory('event-reviews')
+                    ->saveUploadedFileUsing(
+                        static fn (BaseFileUpload $component, TemporaryUploadedFile $file): ?string => WebpUploader::storeUploadedFileAsWebp(
+                            file: $file,
+                            disk: $component->getDiskName(),
+                            directory: $component->getDirectory(),
+                        ),
+                    )
                     ->nullable(),
                 Toggle::make('accepted_terms')
                     ->label('Aceptó términos')

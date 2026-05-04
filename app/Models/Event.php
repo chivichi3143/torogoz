@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\ResolvesPublicStorageUrl;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Event extends Model
@@ -11,6 +12,26 @@ class Event extends Model
     use ResolvesPublicStorageUrl;
 
     protected $guarded = [];
+
+    protected static function booted(): void
+    {
+        static::updating(function (self $event): void {
+            if (! $event->isDirty('image_url')) {
+                return;
+            }
+
+            $oldPath = (string) $event->getOriginal('image_url');
+            $newPath = (string) ($event->image_url ?? '');
+
+            if ($oldPath !== '' && $oldPath !== $newPath) {
+                $event->deleteManagedImageFromPublicDisk($oldPath, 'events/');
+            }
+        });
+
+        static::deleting(function (self $event): void {
+            $event->deleteManagedImageFromPublicDisk((string) ($event->image_url ?? ''), 'events/');
+        });
+    }
 
     public function imageStorageUrl(): ?string
     {
@@ -59,5 +80,24 @@ class Event extends Model
         }
 
         return 'https://www.google.com/maps/search/?api=1&query='.rawurlencode((string) $this->location);
+    }
+
+    private function deleteManagedImageFromPublicDisk(string $path, string $managedPrefix): void
+    {
+        $normalized = str_replace('\\', '/', trim($path));
+        if ($normalized === '') {
+            return;
+        }
+
+        $normalized = ltrim($normalized, '/');
+        if (str_starts_with($normalized, 'storage/')) {
+            $normalized = substr($normalized, strlen('storage/'));
+        }
+
+        if (! Str::startsWith($normalized, $managedPrefix)) {
+            return;
+        }
+
+        Storage::disk('public')->delete($normalized);
     }
 }

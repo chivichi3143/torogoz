@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Events\Schemas;
 
+use App\Support\WebpUploader;
+use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class EventForm
 {
@@ -35,7 +38,14 @@ class EventForm
                 FileUpload::make('image_url')
                     ->image()
                     ->disk('public')
-                    ->directory('events'),
+                    ->directory('events')
+                    ->saveUploadedFileUsing(
+                        static fn (BaseFileUpload $component, TemporaryUploadedFile $file): ?string => WebpUploader::storeUploadedFileAsWebp(
+                            file: $file,
+                            disk: $component->getDiskName(),
+                            directory: $component->getDirectory(),
+                        ),
+                    ),
                 Toggle::make('is_active')
                     ->required(),
             ]);
