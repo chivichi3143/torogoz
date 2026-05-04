@@ -51,7 +51,7 @@ class WebVideoUploader
             $message = $stderr !== '' ? $stderr : $stdout;
 
             if (Str::contains(Str::lower($message), ['not found', 'no se reconoce', 'not recognized'])) {
-                throw new RuntimeException('No se encontró FFmpeg en el servidor. Instálalo o define FFMPEG_BINARY para habilitar la conversión de video.');
+                return self::storeWithoutConversionIfWebCompatible($file, $disk, $directory);
             }
 
             throw new ProcessFailedException($process);
@@ -73,6 +73,38 @@ class WebVideoUploader
         $path = ltrim(($directory !== '' ? $directory.'/' : '').$filename, '/');
 
         Storage::disk($disk)->put($path, $binaryContents);
+
+        return $path;
+    }
+
+    private static function storeWithoutConversionIfWebCompatible(
+        UploadedFile $file,
+        string $disk,
+        ?string $directory,
+    ): string {
+        $extension = Str::lower((string) $file->getClientOriginalExtension());
+        $mime = Str::lower((string) $file->getMimeType());
+
+        $allowed = ['mp4', 'webm'];
+        $isCompatible = in_array($extension, $allowed, true)
+            || in_array($mime, ['video/mp4', 'video/webm'], true);
+
+        if (! $isCompatible) {
+            throw new RuntimeException('El servidor no tiene FFmpeg. Sube un video MP4 o WEBM, o instala FFmpeg para convertir otros formatos.');
+        }
+
+        $directory = trim((string) $directory, '/');
+        $safeExtension = in_array($extension, $allowed, true) ? $extension : 'mp4';
+        $filename = Str::ulid().'.'.$safeExtension;
+        $path = ltrim(($directory !== '' ? $directory.'/' : '').$filename, '/');
+
+        $stream = fopen($file->getRealPath(), 'rb');
+        if ($stream === false) {
+            throw new RuntimeException('No se pudo leer el video temporal para guardarlo.');
+        }
+
+        Storage::disk($disk)->put($path, $stream);
+        fclose($stream);
 
         return $path;
     }
