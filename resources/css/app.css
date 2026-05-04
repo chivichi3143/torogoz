@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/resources/views/**/*.blade.php';
+@source '../../vendor/filament/**/*.blade.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer utilities {
+    .gallery-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: 1fr;
+        grid-auto-rows: 180px;
+    }
+
+    @media (min-width: 768px) {
+        .gallery-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .gallery-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        /* Patrón "tiles" como el mock (1..9). Si hay más items, seguirán el grid normal. */
+        .gallery-grid > .gallery-item:nth-child(1) {
+            grid-column: 1;
+            grid-row: span 2;
+        }
+
+        .gallery-grid > .gallery-item:nth-child(4) {
+            grid-column: 2 / span 2;
+            grid-row: span 1;
+        }
+
+        .gallery-grid > .gallery-item:nth-child(7) {
+            grid-column: 3;
+            grid-row: span 2;
+        }
+    }
+}
