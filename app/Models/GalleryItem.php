@@ -68,17 +68,24 @@ class GalleryItem extends Model
             return $path;
         }
 
-        if (str_starts_with($path, '/')) {
+        if (str_starts_with($path, '/media/public/')) {
             return $path;
         }
 
-        if (Storage::disk('public')->exists($path)) {
-            $relative = '/storage/'.ltrim($path, '/');
-            if (! app()->runningInConsole() && request()->getHttpHost() !== '') {
-                return request()->getScheme().'://'.request()->getHttpHost().$relative;
-            }
+        if (str_starts_with($path, '/images/')) {
+            return $path;
+        }
 
-            return $relative;
+        if (str_starts_with($path, '/')) {
+            $path = ltrim($path, '/');
+        }
+
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, strlen('storage/'));
+        }
+
+        if (Storage::disk('public')->exists($path)) {
+            return route('media.public', ['path' => ltrim($path, '/')], absolute: false);
         }
 
         return '/storage/'.ltrim($path, '/');

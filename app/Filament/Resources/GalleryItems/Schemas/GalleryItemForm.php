@@ -11,6 +11,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class GalleryItemForm
@@ -33,6 +34,27 @@ class GalleryItemForm
                     ->disk('public')
                     ->directory('gallery')
                     ->required()
+                    ->getUploadedFileUsing(static function (BaseFileUpload $component, string $file, string | array | null $storedFileNames): ?array {
+                        $storage = $component->getDisk();
+
+                        try {
+                            if (! $storage->exists($file)) {
+                                return null;
+                            }
+                        } catch (\Throwable) {
+                            return null;
+                        }
+
+                        $normalized = ltrim(str_replace('\\', '/', $file), '/');
+                        $url = route('media.public', ['path' => $normalized], absolute: false);
+
+                        return [
+                            'name' => basename($file),
+                            'size' => Storage::disk($component->getDiskName())->size($file),
+                            'type' => Storage::disk($component->getDiskName())->mimeType($file),
+                            'url' => $url,
+                        ];
+                    })
                     ->saveUploadedFileUsing(
                         static fn (BaseFileUpload $component, TemporaryUploadedFile $file): ?string => WebpUploader::storeUploadedFileAsWebp(
                             file: $file,

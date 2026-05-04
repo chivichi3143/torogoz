@@ -4,6 +4,7 @@ namespace App\Filament\Resources\GalleryItems\Tables;
 
 use App\Models\GalleryItem;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -31,6 +32,7 @@ class GalleryItemsTable
             ->defaultSort('sort_order')
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
