@@ -4,6 +4,7 @@ use App\Models\Beer;
 use App\Models\Event;
 use App\Models\GalleryItem;
 use App\Models\SiteSetting;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,6 +34,20 @@ Route::get('/guia', function () {
 });
 
 Route::view('/maridajes', 'pages.maridajes');
+
+Route::get('/media/public/{path}', function (string $path) {
+    $path = ltrim(str_replace('\\', '/', $path), '/');
+
+    if (str_contains($path, '..')) {
+        abort(404);
+    }
+
+    if (! Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    return Storage::disk('public')->response($path);
+})->where('path', '.*')->name('media.public');
 
 Route::get('/cervezas/{slug}', function (string $slug) {
     $beer = Beer::query()->where('slug', $slug)->where('is_active', true)->firstOrFail();

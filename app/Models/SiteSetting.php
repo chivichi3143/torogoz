@@ -35,7 +35,17 @@ class SiteSetting extends Model
 
     public function heroVideoStorageUrl(): ?string
     {
-        return $this->publicDiskUrl($this->attributes['hero_video_path'] ?? null);
+        $path = $this->attributes['hero_video_path'] ?? null;
+        if (! is_string($path) || $path === '') {
+            return null;
+        }
+
+        $normalized = ltrim(str_replace('\\', '/', $path), '/');
+        if (! Storage::disk('public')->exists($normalized)) {
+            return null;
+        }
+
+        return route('media.public', ['path' => $normalized], absolute: false);
     }
 
     private function deleteManagedVideoFromPublicDisk(string $path, string $managedPrefix): void

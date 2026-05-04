@@ -18,6 +18,10 @@ class WebVideoUploader
         int $crf = 24,
         int $maxWidth = 1920,
     ): string {
+        if ($file->getSize() !== false && $file->getSize() < 100 * 1024) {
+            throw new RuntimeException('El video es demasiado pequeño para un fondo de hero. Sube un archivo MP4/WEBM válido (mínimo 100KB).');
+        }
+
         $realPath = $file->getRealPath();
 
         if (! is_string($realPath) || $realPath === '' || ! is_file($realPath)) {
@@ -105,6 +109,12 @@ class WebVideoUploader
 
         Storage::disk($disk)->put($path, $stream);
         fclose($stream);
+
+        $storedSize = Storage::disk($disk)->size($path);
+        if (is_int($storedSize) && $storedSize < 100 * 1024) {
+            Storage::disk($disk)->delete($path);
+            throw new RuntimeException('El video subido es demasiado pequeño o inválido para usarse como fondo del hero.');
+        }
 
         return $path;
     }

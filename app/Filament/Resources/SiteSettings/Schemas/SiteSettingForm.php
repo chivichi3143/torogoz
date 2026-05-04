@@ -27,6 +27,7 @@ class SiteSettingForm
                         'video/x-matroska',
                     ])
                     ->maxSize(30720)
+                    ->minSize(100)
                     ->disk('public')
                     ->directory('hero-videos')
                     ->saveUploadedFileUsing(
@@ -37,7 +38,7 @@ class SiteSettingForm
                         ),
                     )
                     ->nullable()
-                    ->helperText('Máx. 30MB (límite actual de PHP). Recomendado: 1080p y clips cortos para mejor rendimiento.'),
+                    ->helperText('Mín. 100KB y máx. 30MB (límite actual de PHP). Recomendado: 1080p y clips cortos para mejor rendimiento.'),
             ]);
     }
 }
