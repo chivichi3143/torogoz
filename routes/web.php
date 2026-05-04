@@ -3,6 +3,7 @@
 use App\Models\Beer;
 use App\Models\Event;
 use App\Models\GalleryItem;
+use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -10,8 +11,9 @@ Route::get('/', function () {
     $past = Event::where('is_active', true)->whereDate('date', '<', now())->orderBy('date', 'desc')->get();
     $events = $upcoming->concat($past)->take(3);
     $beers = Beer::catalogOrdered()->get();
+    $heroVideoUrl = SiteSetting::query()->first()?->heroVideoStorageUrl();
 
-    return view('welcome', compact('beers', 'events'));
+    return view('welcome', compact('beers', 'events', 'heroVideoUrl'));
 });
 
 Route::get('/nosotros', function () {

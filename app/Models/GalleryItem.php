@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class GalleryItem extends Model
 {
@@ -25,6 +26,26 @@ class GalleryItem extends Model
     }
 
     protected $guarded = [];
+
+    protected static function booted(): void
+    {
+        static::updating(function (self $item): void {
+            if (! $item->isDirty('image_path')) {
+                return;
+            }
+
+            $oldPath = (string) $item->getOriginal('image_path');
+            $newPath = (string) ($item->image_path ?? '');
+
+            if ($oldPath !== '' && $oldPath !== $newPath) {
+                $item->deleteManagedImageFromPublicDisk($oldPath, 'gallery/');
+            }
+        });
+
+        static::deleting(function (self $item): void {
+            $item->deleteManagedImageFromPublicDisk((string) ($item->image_path ?? ''), 'gallery/');
+        });
+    }
 
     protected function casts(): array
     {
@@ -114,5 +135,24 @@ class GalleryItem extends Model
         $parts = array_filter([$r->author_name, $r->comment]);
 
         return implode(' — ', $parts);
+    }
+
+    private function deleteManagedImageFromPublicDisk(string $path, string $managedPrefix): void
+    {
+        $normalized = str_replace('\\', '/', trim($path));
+        if ($normalized === '') {
+            return;
+        }
+
+        $normalized = ltrim($normalized, '/');
+        if (str_starts_with($normalized, 'storage/')) {
+            $normalized = substr($normalized, strlen('storage/'));
+        }
+
+        if (! Str::startsWith($normalized, $managedPrefix)) {
+            return;
+        }
+
+        Storage::disk('public')->delete($normalized);
     }
 }

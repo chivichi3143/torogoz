@@ -1,9 +1,24 @@
 <x-layouts.app>
     <!-- Hero Section -->
     <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        <!-- Background Pattern / Gradient -->
         <div class="absolute inset-0 bg-zinc-950">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/20 via-zinc-950 to-zinc-950"></div>
+            @if(!empty($heroVideoUrl))
+                <video
+                    class="absolute inset-0 h-full w-full object-cover"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                >
+                    <source src="{{ $heroVideoUrl }}" type="video/mp4">
+                </video>
+            @endif
+
+            <!-- Filtro oscuro y gradiente más intenso para legibilidad del hero -->
+            <div class="absolute inset-0 bg-zinc-950/70"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/35 via-zinc-950/85 to-zinc-950"></div>
+
             <!-- Decorative blur blobs -->
             <div class="absolute top-1/4 -left-32 w-96 h-96 bg-amber-600/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
             <div class="absolute bottom-1/4 -right-32 w-96 h-96 bg-red-600/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
@@ -17,7 +32,7 @@
                 El Auténtico Sabor de <br>
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">El Salvador</span>
             </h1>
-            <p class="mt-4 text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto font-light leading-relaxed mb-10">
+            <p class="mt-4 text-xl md:text-2xl text-white max-w-3xl mx-auto font-normal leading-relaxed mb-10" style="text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);">
                 Orgullosamente originaria de Chalchuapa. Una experiencia artesanal con una visión hacia el futuro. Descubre nuestras variedades únicas y siente la tradición salvadoreña en cada sorbo.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
@@ -50,7 +65,7 @@
                         <div class="absolute inset-0 opacity-30" style="background: radial-gradient(circle at center, {{ $beer->color }}40 0%, transparent 70%);"></div>
                         
                         <!-- Original Beer Image -->
-                        <img src="{{ $beer->image_bottle }}" alt="{{ $beer->name }} Cerveza Artesanal" style="width: 100%; height: 100%; object-fit: contain; padding: 2rem;" class="relative z-10 group-hover:scale-105 transition-transform duration-700 drop-shadow-2xl">
+                        <img src="{{ $beer->imageBottleUrl() }}" alt="{{ $beer->name }} Cerveza Artesanal" style="width: 100%; height: 100%; object-fit: contain; padding: 2rem;" class="relative z-10 group-hover:scale-105 transition-transform duration-700 drop-shadow-2xl">
                     </div>
 
                     <!-- Info Section -->

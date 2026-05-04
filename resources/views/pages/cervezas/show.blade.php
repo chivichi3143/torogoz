@@ -8,8 +8,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <!-- Imagen de la cerveza con fondo -->
             <div class="w-full relative overflow-hidden rounded-3xl shadow-2xl ring-1 ring-zinc-800">
-                <button type="button" class="js-site-image-modal block w-full p-0 border-0 bg-transparent cursor-zoom-in text-left" data-image-url="{{ $beer->image_background }}" data-caption="{{ e($beer->description) }}">
-                    <img src="{{ $beer->image_background }}" alt="{{ $beer->name }}" style="width: 100%; height: 100%; object-fit: cover; min-height: 400px;" class="relative z-10 hover:scale-105 transition-transform duration-700">
+                <button type="button" class="js-site-image-modal block w-full p-0 border-0 bg-transparent cursor-zoom-in text-left" data-image-url="{{ $beer->imageBackgroundUrl() }}" data-caption="{{ e($beer->description) }}">
+                    <img src="{{ $beer->imageBackgroundUrl() }}" alt="{{ $beer->name }}" style="width: 100%; height: 100%; object-fit: cover; min-height: 400px;" class="relative z-10 hover:scale-105 transition-transform duration-700">
                 </button>
             </div>
 

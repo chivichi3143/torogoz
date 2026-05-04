@@ -2,11 +2,15 @@
 
 namespace App\Filament\Resources\Beers\Schemas;
 
+use App\Support\WebpUploader;
+use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class BeerForm
 {
@@ -60,16 +64,34 @@ class BeerForm
                 Textarea::make('pairing')
                     ->required()
                     ->columnSpanFull(),
-                TextInput::make('image_bottle')
-                    ->label('Imagen botella (ruta)')
+                FileUpload::make('image_bottle')
+                    ->label('Imagen botella')
+                    ->image()
+                    ->disk('public')
+                    ->directory('beers/bottles')
                     ->required()
-                    ->maxLength(512)
-                    ->helperText('Ej. /images/mi-botella.png'),
-                TextInput::make('image_background')
-                    ->label('Imagen fondo (ruta)')
+                    ->saveUploadedFileUsing(
+                        static fn (BaseFileUpload $component, TemporaryUploadedFile $file): ?string => WebpUploader::storeUploadedFileAsWebp(
+                            file: $file,
+                            disk: $component->getDiskName(),
+                            directory: $component->getDirectory(),
+                        ),
+                    )
+                    ->helperText('Se convierte automáticamente a WebP.'),
+                FileUpload::make('image_background')
+                    ->label('Imagen fondo')
+                    ->image()
+                    ->disk('public')
+                    ->directory('beers/backgrounds')
                     ->required()
-                    ->maxLength(512)
-                    ->helperText('Ej. /images/mi-fondo.png'),
+                    ->saveUploadedFileUsing(
+                        static fn (BaseFileUpload $component, TemporaryUploadedFile $file): ?string => WebpUploader::storeUploadedFileAsWebp(
+                            file: $file,
+                            disk: $component->getDiskName(),
+                            directory: $component->getDirectory(),
+                        ),
+                    )
+                    ->helperText('Se convierte automáticamente a WebP.'),
                 TextInput::make('sort_order')
                     ->numeric()
                     ->default(0)

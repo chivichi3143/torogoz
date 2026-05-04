@@ -3,11 +3,15 @@
 namespace App\Filament\Resources\GalleryItems\Schemas;
 
 use App\Models\GalleryItem;
+use App\Support\WebpUploader;
+use Filament\Forms\Components\BaseFileUpload;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class GalleryItemForm
 {
@@ -23,11 +27,20 @@ class GalleryItemForm
                     ->maxLength(255),
                 Textarea::make('description')
                     ->columnSpanFull(),
-                TextInput::make('image_path')
-                    ->label('Ruta de imagen')
+                FileUpload::make('image_path')
+                    ->label('Imagen')
+                    ->image()
+                    ->disk('public')
+                    ->directory('gallery')
                     ->required()
-                    ->maxLength(512)
-                    ->helperText('Ruta pública (ej. /images/...) o archivo en disco public (ej. gallery/archivo.jpg).'),
+                    ->saveUploadedFileUsing(
+                        static fn (BaseFileUpload $component, TemporaryUploadedFile $file): ?string => WebpUploader::storeUploadedFileAsWebp(
+                            file: $file,
+                            disk: $component->getDiskName(),
+                            directory: $component->getDirectory(),
+                        ),
+                    )
+                    ->helperText('Sube una imagen; se convertirá automáticamente a WebP.'),
                 TextInput::make('sort_order')
                     ->numeric()
                     ->default(0)
